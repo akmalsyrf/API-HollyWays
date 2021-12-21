@@ -2,19 +2,22 @@ const express = require("express");
 const router = express.Router();
 
 //auth
-router.post("/login", (req, res) => {});
-router.post("/register", (req, res) => {});
+const { login, register } = require("../controllers/auth");
+router.post("/login", login);
+router.post("/register", register);
 
 //user
-router.get("/users", (req, res) => {});
-router.delete("/user/:id", (req, res) => {});
+const { getAllUsers, deleteUser } = require("../controllers/user");
+router.get("/users", getAllUsers);
+router.delete("/user/:id", deleteUser);
 
 // fund
-router.get("/funds", (req, res) => {});
-router.get("/fund/:id", (req, res) => {});
-router.post("/fund", (req, res) => {});
-router.patch("/fund/:fundId", (req, res) => {}); //edit fund
-router.patch("/fund/:fundId/:userId", (req, res) => {}); //edit user donate by fund
-router.delete("/fund/:id", (req, res) => {});
+const { getAllFunds, getFund, addFund, editFund, deleteFund, editUserDonateByFund } = require("../controllers/fund");
+router.get("/funds", getAllFunds);
+router.get("/fund/:id", getFund);
+router.post("/fund", addFund);
+router.patch("/fund/:id", editFund);
+router.delete("/fund/:id", deleteFund);
+router.patch("/fund/:fundId/:userId", editUserDonateByFund);
 
 module.exports = router;
