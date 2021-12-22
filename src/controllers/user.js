@@ -1,17 +1,12 @@
-const users = [
-  {
-    id: 1,
-    fullname: "Admin",
-    email: "admin@mail.com",
-  },
-];
+const { user } = require("../../models");
 
 exports.getAllUsers = async (req, res) => {
   try {
+    const data = await user.findAll({ attributes: { exclude: ["password", "createdAt", "updatedAt"] } });
     res.status(200).send({
       status: "success",
       data: {
-        user: users,
+        user: data,
       },
     });
   } catch (error) {
@@ -24,13 +19,20 @@ exports.getAllUsers = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
-    users.splice(id - 1, 1);
-    res.status(200).send({
-      status: "success",
-      data: {
-        id,
-      },
-    });
+    const result = await user.destroy({ where: { id } });
+    if (result == 1) {
+      res.status(200).send({
+        status: "success",
+        data: {
+          id,
+        },
+      });
+    } else {
+      res.status(400).send({
+        status: "error",
+        message: "User doesn't exist",
+      });
+    }
   } catch (error) {
     res.status(500).send({
       status: "failed",

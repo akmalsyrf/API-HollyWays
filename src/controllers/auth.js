@@ -1,31 +1,17 @@
-const users = [
-  {
-    id: 1,
-    fullname: "Admin",
-    email: "admin@mail.com",
-  },
-];
 const token = "0sdnOJIoinsdo9878IJNBIniiuinINiuYIUY";
+const { user } = require("../../models");
 
 exports.login = async (req, res) => {
   try {
-    const { fullname, email } = req.body;
-    const user = users.map((item) => {
-      if (item.fullname == fullname) {
-        if (item.email == email) {
-          return {
-            fullname: item.fullname,
-            email: item.email,
-            token,
-          };
-        }
-      }
-      return;
+    const { email, password } = req.body;
+    const data = await user.findOne({
+      where: { email, password },
+      attributes: { exclude: ["password", "createdAt", "updatedAt"] },
     });
     res.status(200).send({
       status: "success",
       data: {
-        user,
+        user: { ...data.dataValues, token },
       },
     });
   } catch (error) {
@@ -37,9 +23,9 @@ exports.login = async (req, res) => {
 };
 exports.register = async (req, res) => {
   try {
-    const { fullname, email } = req.body;
-    const user = { id: "", fullname, email };
-    users.push(user);
+    const { fullname, email, password } = req.body;
+    const data = { fullname, email, password };
+    await user.create(data);
     res.status(200).send({
       status: "success",
       data: {
@@ -50,6 +36,7 @@ exports.register = async (req, res) => {
       },
     });
   } catch (error) {
+    console.log(error);
     res.status(500).send({
       status: "failed",
       message: "Server error",

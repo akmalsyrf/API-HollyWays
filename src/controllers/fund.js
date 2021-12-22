@@ -18,15 +18,26 @@ const funds = [
   },
 ];
 
+const { fund, payment, user } = require("../../models");
+
 exports.getAllFunds = async (req, res) => {
   try {
+    const data = await fund.findAll({
+      // include: {
+      //   models: payment,
+      //   as: "userDonate",
+      //   attributes: { exclude: ["idUser", "idFund", "createdAt", "updatedAt"] },
+      // },
+      attributes: { exclude: ["idUser"] },
+    });
     res.status(200).send({
       status: "success",
       data: {
-        funds,
+        funds: data,
       },
     });
   } catch (error) {
+    console.log(error);
     res.status(500).send({
       status: "failed",
       message: "Server error",
@@ -37,10 +48,19 @@ exports.getAllFunds = async (req, res) => {
 exports.getFund = async (req, res) => {
   try {
     const { id } = req.params;
+    const data = fund.findOne({
+      where: { id },
+      // include: {
+      //   models: payment,
+      //   as: "userDonate",
+      //   attributes: { exclude: ["idUser", "idFund", "createdAt", "updatedAt"] },
+      // },
+      attributes: { exclude: ["idUser"] },
+    });
     res.status(200).send({
       status: "success",
       data: {
-        fund: funds.find((item) => item.id == id),
+        fund: data,
       },
     });
   } catch (error) {
@@ -53,29 +73,11 @@ exports.getFund = async (req, res) => {
 
 exports.addFund = async (req, res) => {
   try {
-    const { title, thumbnail, goal, description } = req.body;
-    funds.push(req.body);
-    const usersDonate = [
-      {
-        id: 1,
-        fullname: "Admin",
-        email: "admin@mail.com",
-        donateAmount: 100000,
-        status: "pending",
-        proofAttachment: "bca-transfer.png",
-      },
-    ];
+    const data = await fund.create(req.body);
     res.status(200).send({
       status: "success",
       data: {
-        fund: {
-          id: "",
-          title,
-          thumbnail,
-          goal,
-          description,
-          usersDonate,
-        },
+        fund: { ...data.dataValues, userDonate: [] },
       },
     });
   } catch (error) {
@@ -89,29 +91,20 @@ exports.addFund = async (req, res) => {
 exports.editFund = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, thumbnail, goal, description } = req.body;
-    funds.map((item) => {});
-    const usersDonate = [
-      {
-        id: 1,
-        fullname: "Admin",
-        email: "admin@mail.com",
-        donateAmount: 100000,
-        status: "pending",
-        proofAttachment: "bca-transfer.png",
-      },
-    ];
+    await fund.update(req.body, { where: { id } });
+    const data = fund.findOne({
+      where: { id },
+      // include: {
+      //   models: payment,
+      //   as: "userDonate",
+      //   attributes: { exclude: ["idUser", "idFund", "createdAt", "updatedAt"] },
+      // },
+      attributes: { exclude: ["idUser"] },
+    });
     res.status(200).send({
       status: "success",
       data: {
-        fund: {
-          id,
-          title,
-          thumbnail,
-          goal,
-          description,
-          usersDonate,
-        },
+        fund: data,
       },
     });
   } catch (error) {
@@ -126,11 +119,11 @@ exports.editFund = async (req, res) => {
 exports.deleteFund = async (req, res) => {
   try {
     const { id } = req.params;
-    funds.splice(id - 1, 1);
+    const data = await fund.destroy({ where: { id } });
     res.status(200).send({
       status: "success",
       data: {
-        id,
+        id: data,
       },
     });
   } catch (error) {
@@ -144,25 +137,16 @@ exports.deleteFund = async (req, res) => {
 exports.editUserDonateByFund = async (req, res) => {
   try {
     const { fundId, userId } = req.params;
-    const { fullname, email, donateAmount, status, proofAttachment } = req.body;
 
+    await payment.update(req.body, { where: { idFund: fundId, id: userId } });
+    const data = payment.findOne({
+      where: { id: userId },
+      attributes: { exclude: ["idUser", "idFund", "createdAt", "updatedAt"] },
+    });
     res.status(200).send({
       status: "success",
       data: {
-        fund: funds.map((item) => {
-          if (item.id == fundId) {
-            const newUserDonate = {
-              id: userId,
-              fullname,
-              email,
-              donateAmount,
-              status,
-              proofAttachment,
-            };
-            item.usersDonate.push(newUserDonate);
-            return item;
-          }
-        }),
+        fund: data,
       },
     });
   } catch (error) {
