@@ -1,6 +1,6 @@
 const multer = require("multer");
 
-exports.uploadFile = (files) => {
+exports.uploadFile = (imageFile) => {
   const storage = multer.diskStorage({
     destination: function (req, res, cb) {
       cb(null, "uploads");
@@ -11,7 +11,7 @@ exports.uploadFile = (files) => {
   });
 
   const fileFilter = function (req, file, cb) {
-    if (file.filename === files) {
+    if (file.filename === imageFile) {
       if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|pdf|PDF)$/)) {
         req.fileValidationError = {
           message: "only image files are allowed!",
@@ -31,7 +31,7 @@ exports.uploadFile = (files) => {
     limits: {
       fileSize: maxSize,
     },
-  }).single(files);
+  }).single(imageFile);
 
   return (req, res, next) => {
     upload(req, res, function (err) {
