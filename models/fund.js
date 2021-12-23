@@ -10,13 +10,12 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       fund.belongsTo(models.user, {
-        as: "user",
         foreignKey: {
           name: "idUser",
         },
       });
       fund.hasMany(models.payment, {
-        as: "payments",
+        as: "userDonate",
         foreignKey: {
           name: "idFund",
         },

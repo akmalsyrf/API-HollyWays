@@ -10,13 +10,11 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       payment.belongsTo(models.user, {
-        as: "user",
         foreignKey: {
           name: "idUser",
         },
       });
       payment.belongsTo(models.fund, {
-        as: "fund",
         foreignKey: {
           name: "idFund",
         },
@@ -25,8 +23,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   payment.init(
     {
-      fullname: DataTypes.INTEGER,
-      email: DataTypes.INTEGER,
+      fullname: DataTypes.STRING,
+      email: DataTypes.STRING,
       donateAmount: DataTypes.INTEGER,
       status: DataTypes.STRING,
       proofAttachment: DataTypes.STRING,

@@ -9,10 +9,10 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       fullname: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       email: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       donateAmount: {
         type: Sequelize.INTEGER,
