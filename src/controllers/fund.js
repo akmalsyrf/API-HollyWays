@@ -1,4 +1,4 @@
-const { fund, payment } = require("../../models");
+const { fund, payment, user } = require("../../models");
 
 exports.getAllFunds = async (req, res) => {
   try {
@@ -84,7 +84,7 @@ exports.editFund = async (req, res) => {
   try {
     const { id } = req.params;
     await fund.update(req.body, { where: { id } });
-    const data = fund.findOne({
+    const data = await fund.findOne({
       where: { id },
       include: [
         {
@@ -130,7 +130,8 @@ exports.deleteFund = async (req, res) => {
 
 exports.addUserDonate = async (req, res) => {
   const { fundId } = req.params;
-  const data = { ...req.body, proofAttachment: req.file.filename, idUser: 1, idFund: fundId };
+  const userData = await user.findOne({ where: { email: req.users.email } });
+  const data = { ...req.body, fullname: userData.fullname, email: req.users.email, proofAttachment: req.file.filename, idUser: userData.id, idFund: fundId };
   try {
     const userDonate = await payment.create(data);
     res.status(200).send({
