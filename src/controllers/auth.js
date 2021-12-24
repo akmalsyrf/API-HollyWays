@@ -112,6 +112,7 @@ exports.login = async (req, res) => {
       status: "success",
       data: {
         user: {
+          fullname: userExist.fullname,
           email: userExist.email,
           token,
         },

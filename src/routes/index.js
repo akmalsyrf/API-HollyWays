@@ -12,12 +12,15 @@ router.get("/users", getAllUsers);
 router.delete("/user/:id", deleteUser);
 
 // fund
-const { getAllFunds, getFund, addFund, editFund, deleteFund, editUserDonateByFund } = require("../controllers/fund");
+const { getAllFunds, getFund, addFund, editFund, deleteFund, addUserDonate, editUserDonateByFund } = require("../controllers/fund");
 router.get("/funds", getAllFunds);
 router.get("/fund/:id", getFund);
 router.post("/fund", addFund);
 router.patch("/fund/:id", editFund);
 router.delete("/fund/:id", deleteFund);
+
+//userDonate
+router.post("/fund/:fundId", addUserDonate);
 router.patch("/fund/:fundId/:userId", editUserDonateByFund);
 
 module.exports = router;

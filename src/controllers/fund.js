@@ -26,7 +26,7 @@ exports.getAllFunds = async (req, res) => {
       include: [
         {
           model: payment,
-          as: "userDonate",
+          as: "usersDonate",
           attributes: { exclude: ["idUser", "idFund", "createdAt", "updatedAt"] },
         },
       ],
@@ -50,12 +50,12 @@ exports.getAllFunds = async (req, res) => {
 exports.getFund = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = fund.findOne({
+    const data = await fund.findOne({
       where: { id },
       include: [
         {
           model: payment,
-          as: "userDonate",
+          as: "usersDonate",
           attributes: { exclude: ["idUser", "idFund", "createdAt", "updatedAt"] },
         },
       ],
@@ -78,10 +78,18 @@ exports.getFund = async (req, res) => {
 exports.addFund = async (req, res) => {
   try {
     const data = await fund.create(req.body);
+    const value = data.dataValues;
+    const response = {
+      id: value.id,
+      title: value.title,
+      thumbnail: value.thumbnail,
+      goal: value.goal,
+      description: value.description,
+    };
     res.status(200).send({
       status: "success",
       data: {
-        fund: { ...data.dataValues, userDonate: [] },
+        fund: { ...response, usersDonate: [] },
       },
     });
   } catch (error) {
@@ -101,7 +109,7 @@ exports.editFund = async (req, res) => {
       include: [
         {
           model: payment,
-          as: "userDonate",
+          as: "usersDonate",
           attributes: { exclude: ["idUser", "idFund", "createdAt", "updatedAt"] },
         },
       ],
@@ -140,20 +148,45 @@ exports.deleteFund = async (req, res) => {
   }
 };
 
+exports.addUserDonate = async (req, res) => {
+  const { fundId } = req.params;
+  const data = { ...req.body, idFund: fundId };
+  try {
+    const userDonate = await payment.create(data);
+    res.status(200).send({
+      status: "success",
+      data: {
+        userDonate,
+      },
+    });
+  } catch (error) {
+    res.status(500).send({
+      status: "failed",
+      message: "Server error",
+    });
+  }
+};
+
 exports.editUserDonateByFund = async (req, res) => {
   try {
     const { fundId, userId } = req.params;
 
     await payment.update(req.body, { where: { idFund: fundId, id: userId } });
-    const data = payment.findOne({
-      where: { id: userId },
-      attributes: { exclude: ["idUser", "idFund", "createdAt", "updatedAt"] },
+
+    const data = await fund.findOne({
+      where: { id: fundId },
+      include: [
+        {
+          model: payment,
+          as: "usersDonate",
+          attributes: { exclude: ["idUser", "idFund", "createdAt", "updatedAt"] },
+        },
+      ],
+      attributes: { exclude: ["idUser", "createdAt", "updatedAt"] },
     });
     res.status(200).send({
       status: "success",
-      data: {
-        fund: data,
-      },
+      data,
     });
   } catch (error) {
     res.status(500).send({

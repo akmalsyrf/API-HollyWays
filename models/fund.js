@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
       fund.hasMany(models.payment, {
-        as: "userDonate",
+        as: "usersDonate",
         foreignKey: {
           name: "idFund",
         },
