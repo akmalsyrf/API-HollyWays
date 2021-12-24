@@ -5,7 +5,7 @@ require("dotenv").config();
 const router = require("./src/routes/index");
 
 app.use(express.json());
-app.use("/uploads/", express.static("uploads"));
+app.use("/uploads", express.static("uploads"));
 
 app.use("/api/v1", router);
 

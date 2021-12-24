@@ -1,24 +1,4 @@
-// const funds = [
-//   {
-//     id: 1,
-//     title: "The strength of poeple power of the community",
-//     thumbnail: "people-power.png",
-//     goal: 20000000,
-//     description: "Lorem Ipsum is simply dummy text of the printing",
-//     usersDonate: [
-//       {
-//         id: 1,
-//         fullname: "Admin",
-//         email: "admin@mail.com",
-//         donateAmount: 100000,
-//         status: "pending",
-//         proofAttachment: "bca-transfer.png",
-//       },
-//     ],
-//   },
-// ];
-
-const { fund, payment, user } = require("../../models");
+const { fund, payment } = require("../../models");
 
 exports.getAllFunds = async (req, res) => {
   try {
@@ -77,7 +57,7 @@ exports.getFund = async (req, res) => {
 
 exports.addFund = async (req, res) => {
   try {
-    const data = await fund.create(req.body);
+    const data = await fund.create({ ...req.body, thumbnail: req.file.filename });
     const value = data.dataValues;
     const response = {
       id: value.id,
@@ -150,7 +130,7 @@ exports.deleteFund = async (req, res) => {
 
 exports.addUserDonate = async (req, res) => {
   const { fundId } = req.params;
-  const data = { ...req.body, idFund: fundId };
+  const data = { ...req.body, proofAttachment: req.file.filename, idUser: 1, idFund: fundId };
   try {
     const userDonate = await payment.create(data);
     res.status(200).send({
