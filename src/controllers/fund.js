@@ -57,7 +57,7 @@ exports.getFund = async (req, res) => {
 
 exports.addFund = async (req, res) => {
   try {
-    const data = await fund.create({ ...req.body, thumbnail: req.file.filename });
+    const data = await fund.create({ ...req.body, idUser: req.users.id, thumbnail: req.file.filename });
     const value = data.dataValues;
     const response = {
       id: value.id,
@@ -130,8 +130,11 @@ exports.deleteFund = async (req, res) => {
 
 exports.addUserDonate = async (req, res) => {
   const { fundId } = req.params;
-  const userData = await user.findOne({ where: { email: req.users.email } });
-  const data = { ...req.body, fullname: userData.fullname, email: req.users.email, proofAttachment: req.file.filename, idUser: userData.id, idFund: fundId };
+  const userData = await user.findOne({
+    where: { id: req.users.id },
+    attributes: { exclude: ["createdAt", "updatedAt"] },
+  });
+  const data = { ...req.body, fullname: userData.fullname, email: userData.email, proofAttachment: req.file.filename, idUser: userData.id, idFund: fundId };
   try {
     const userDonate = await payment.create(data);
     res.status(200).send({

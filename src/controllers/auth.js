@@ -104,7 +104,7 @@ exports.login = async (req, res) => {
     }
 
     const dataToken = {
-      email: userExist.email,
+      id: userExist.id,
     };
     const token = jwt.sign(dataToken, process.env.TOKEN_API);
 
