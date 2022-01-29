@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 exports.register = async (req, res) => {
   const data = req.body;
   const schema = Joi.object({
-    fullname: Joi.string().min(5).required(),
+    fullname: Joi.string().required(),
     email: Joi.string().min(6).email().required(),
     password: Joi.string().min(5).required(),
   });
@@ -14,7 +14,7 @@ exports.register = async (req, res) => {
   const { error } = schema.validate(data);
 
   if (error) {
-    return res.status(400).send({
+    return res.send({
       status: "error",
       message: error.details[0].message,
     });
@@ -31,6 +31,7 @@ exports.register = async (req, res) => {
 
     if (userExist) {
       return res.send({
+        status: "error",
         message: "email already used",
       });
     }
@@ -42,7 +43,7 @@ exports.register = async (req, res) => {
     });
 
     const dataToken = {
-      email: newUser.email,
+      id: newUser.id,
     };
     const token = jwt.sign(dataToken, process.env.TOKEN_API);
     res.send({
@@ -72,10 +73,9 @@ exports.login = async (req, res) => {
   const { error } = schema.validate(req.body);
 
   if (error) {
-    return res.status(400).send({
-      error: {
-        message: error.details[0].message,
-      },
+    return res.send({
+      status: "error",
+      message: error.details[0].message,
     });
   }
   try {
@@ -89,16 +89,16 @@ exports.login = async (req, res) => {
     });
 
     if (!userExist) {
-      return res.status(400).send({
-        status: "failed",
+      return res.send({
+        status: "error",
         message: "user doesn't exist",
       });
     }
     const isValid = await bcrypt.compare(req.body.password, userExist.password);
 
     if (!isValid) {
-      return res.status(400).send({
-        status: "failed",
+      return res.send({
+        status: "error",
         message: "credential is invalid",
       });
     }
@@ -122,6 +122,42 @@ exports.login = async (req, res) => {
     res.status(500).send({
       status: "failed",
       message: "Server error",
+    });
+  }
+};
+
+exports.checkAuth = async (req, res) => {
+  try {
+    const id = req.users.id;
+    const dataUser = await user.findOne({
+      where: {
+        id,
+      },
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "password"],
+      },
+    });
+
+    if (!dataUser) {
+      return res.status(404).send({
+        status: "failed",
+      });
+    }
+
+    res.status(200).send({
+      status: "success",
+      data: {
+        user: {
+          id: dataUser.id,
+          fullname: dataUser.fullname,
+          email: dataUser.email,
+        },
+      },
+    });
+  } catch (error) {
+    res.status(500).send({
+      status: "failed",
+      message: "Server Error",
     });
   }
 };
