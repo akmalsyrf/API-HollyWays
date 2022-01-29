@@ -1,6 +1,8 @@
 const { fund, payment, user } = require("../../models");
 const fs = require("fs");
 
+const cloudinary = require("../utils/cloudinary");
+
 exports.getAllFunds = async (req, res) => {
   try {
     const dataFund = await fund.findAll({
@@ -123,10 +125,18 @@ exports.getFund = async (req, res) => {
 exports.addFund = async (req, res) => {
   console.log(req.users);
   try {
+
+    //edit this
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "HollyWays",
+      use_filename: true,
+      unique_filename: false,
+    });
+
     const data = await fund.create({
       ...req.body,
       idUser: req.users.id,
-      thumbnail: req.file.filename,
+      thumbnail: result.public_id,
     });
     const value = data.dataValues;
     const response = {
@@ -193,32 +203,32 @@ exports.deleteFund = async (req, res) => {
   try {
     const { id } = req.params;
 
-    //delete proof attachment
-    const dataPayment = await payment.findAll({
-      where: {
-        idFund: id,
-      },
-    });
+    // //delete proof attachment
+    // const dataPayment = await payment.findAll({
+    //   where: {
+    //     idFund: id,
+    //   },
+    // });
 
-    if (dataPayment) {
-      dataPayment.map((donate) => {
-        fs.unlink("uploads/" + donate.proofAttachment, (err) => {
-          if (err) throw err;
-          return console.log("Delete proof donate image");
-        });
-      });
-    }
+    // if (dataPayment) {
+    //   dataPayment.map((donate) => {
+    //     fs.unlink("uploads/" + donate.proofAttachment, (err) => {
+    //       if (err) throw err;
+    //       return console.log("Delete proof donate image");
+    //     });
+    //   });
+    // }
 
-    //delete thumbnail fund
-    const dataFund = await fund.findOne({
-      where: {
-        id,
-      },
-    });
-    fs.unlink("uploads/" + dataFund.thumbnail, (err) => {
-      if (err) throw err;
-      console.log("Delete fund thumbnail");
-    });
+    // //delete thumbnail fund
+    // const dataFund = await fund.findOne({
+    //   where: {
+    //     id,
+    //   },
+    // });
+    // fs.unlink("uploads/" + dataFund.thumbnail, (err) => {
+    //   if (err) throw err;
+    //   console.log("Delete fund thumbnail");
+    // });
 
     //delete fund
     await fund.destroy({ where: { id } });
