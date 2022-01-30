@@ -11,9 +11,10 @@ exports.addUserDonate = async (req, res) => {
   });
   const data = {
     ...req.body,
+    id:`HollyWaysDonation-${Date.now()}`,
     fullname: userData.fullname,
     email: userData.email,
-    status: "pending",
+    status: "success",
     proofAttachment: "proof.png",
     idUser: userData.id,
     idFund: fundId,

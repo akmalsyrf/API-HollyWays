@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
   }
   payment.init(
     {
+      id:{
+        type:DataTypes.STRING,
+        primaryKey: true
+      },
       fullname: DataTypes.STRING,
       email: DataTypes.STRING,
       donateAmount: DataTypes.INTEGER,
