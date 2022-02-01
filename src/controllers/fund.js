@@ -68,13 +68,12 @@ exports.getFund = async (req, res) => {
     const { id } = req.params;
     const dataFund = await fund.findOne({
       where: { id },
-      // include: [
-      //   {
-      //     model: payment,
-      //     as: "usersDonate",
-      //     attributes: { exclude: ["createdAt", "updatedAt"] },
-      //   },
-      // ],
+      include: [
+        {
+          model: user,
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+        },
+      ],
       attributes: { exclude: ["createdAt", "updatedAt"] },
     });
     const usersDonate = await payment.findAll({
@@ -88,7 +87,7 @@ exports.getFund = async (req, res) => {
       thumbnail: dataFund.thumbnail,
       goal: dataFund.goal,
       description: dataFund.description,
-      idUser: dataFund.idUser,
+      idUser: dataFund.user,
       donationObtained: usersDonate.reduce((total, donation) => {
         if (donation.idFund == dataFund.id) {
           if (donation.status == "success") {
@@ -125,7 +124,6 @@ exports.getFund = async (req, res) => {
 exports.addFund = async (req, res) => {
   console.log(req.users);
   try {
-
     //edit this
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: "HollyWays",
