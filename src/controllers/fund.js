@@ -87,7 +87,7 @@ exports.getFund = async (req, res) => {
       thumbnail: dataFund.thumbnail,
       goal: dataFund.goal,
       description: dataFund.description,
-      idUser: dataFund.user,
+      crowdfunder: dataFund.user.fullname,
       donationObtained: usersDonate.reduce((total, donation) => {
         if (donation.idFund == dataFund.id) {
           if (donation.status == "success") {
